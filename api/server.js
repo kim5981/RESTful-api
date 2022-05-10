@@ -69,9 +69,42 @@ server.post("/api/users/", (req, res) => {
 })
 
 // PUT /api/users/:id
+server.put("api/users/:id", (req, res) => {
+    const user = req.body
+    if (!user) {
+        res.status(404).json({
+            message: "The user with the specified ID does not exist",
+        })
+    } else {
+        Users.update(user)
+        .then(update => {
+            console.log(update)
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: "error updating user",
+                err: err.message,
+                stack: err.stack
+               })
+        })
+    }
+    
+})
 
 
 // DELETE /api/users/:id
+server.delete("/api/users/:id", async (req, res) => {
+    const possibleUser = await Users.findById(req.params.id)
+    if(!possibleUser) {
+        res.status(404).json({
+            message: "The user with the specified ID does not exist",
+        })
+    } else {
+        const deletedUser = await Users.remove(possibleUser.id)
+        res.status(200).json(deletedUser)
+    }
+})
+
 module.exports = server; 
 
 /**
