@@ -94,7 +94,8 @@ server.put("api/users/:id", (req, res) => {
 
 // DELETE /api/users/:id
 server.delete("/api/users/:id", async (req, res) => {
-    const possibleUser = await Users.findById(req.params.id)
+    try {
+        const possibleUser = await Users.findById(req.params.id)
     if(!possibleUser) {
         res.status(404).json({
             message: "The user with the specified ID does not exist",
@@ -102,6 +103,13 @@ server.delete("/api/users/:id", async (req, res) => {
     } else {
         const deletedUser = await Users.remove(possibleUser.id)
         res.status(200).json(deletedUser)
+    }
+    } catch (err) {
+        res.status(500).json({
+            message: "error deleting user",
+            err: err.message,
+            stack: err.stack
+           })
     }
 })
 
