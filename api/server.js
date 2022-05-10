@@ -69,26 +69,34 @@ server.post("/api/users/", (req, res) => {
 })
 
 // PUT /api/users/:id
-server.put("api/users/:id", (req, res) => {
-    const user = req.body
-    if (!user) {
-        res.status(404).json({
-            message: "The user with the specified ID does not exist",
-        })
-    } else {
-        Users.update(user)
-        .then(update => {
-            console.log(update)
-        })
-        .catch(err => {
-            res.status(500).json({
-                message: "error updating user",
-                err: err.message,
-                stack: err.stack
-               })
-        })
+server.put("/api/users/:id", async (req, res) => {
+    try {
+        const updatedUser = await Users.findById(req.params.id)
+        if (!updatedUser) {
+            res.status(404).json({
+                message: "The user with the specified ID does not exist",
+            })
+        } else {
+            if( !req.body.name || !req.body.bio ) {
+                res.status(400).json({
+                    message: "Please provide name and bio for the user",
+                })
+            } else {
+               const update = await Users.update(
+                   req.params.id, 
+                   req.body,
+                   )
+                res.status(200).json(update);
+            }
+        } 
     }
-    
+    catch (err) {
+        res.status(500).json({
+            message: "error updating user",
+            err: err.message,
+            stack: err.stack
+           })
+    }
 })
 
 
